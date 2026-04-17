@@ -29,7 +29,11 @@
     color: #FAFAFA;
     font-family: var(--font-inter), system-ui, sans-serif;
     overflow-x: hidden;
-    cursor: none; /* Curseur custom */
+  }
+
+  /* Curseur custom — uniquement sur les appareils avec souris (pas mobile/tablette) */
+  @media (pointer: fine) {
+    body { cursor: none; }
   }
 
   /* Accessibilité : prefers-reduced-motion */
@@ -108,14 +112,14 @@
     pointer-events: none;
   }
 
-  /* Curseur custom masqué sur les éléments interactifs */
-  a, button, [role="button"] {
-    cursor: none;
-  }
-
-  /* Masquer le vrai curseur sur tous les éléments */
-  * {
-    cursor: none !important;
+  /* Curseur custom — masquer le vrai curseur uniquement sur souris */
+  @media (pointer: fine) {
+    a, button, [role="button"] {
+      cursor: none;
+    }
+    * {
+      cursor: none !important;
+    }
   }
 
   /* Ligne décorative animée */

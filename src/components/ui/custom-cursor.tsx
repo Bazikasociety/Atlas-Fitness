@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
 export function CustomCursor() {
@@ -8,12 +8,19 @@ export function CustomCursor() {
   const cursorY = useMotionValue(-100);
   const [isPointer, setIsPointer] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(true); // true par défaut (SSR-safe)
 
   const springConfig = { damping: 25, stiffness: 400, mass: 0.5 };
   const springX = useSpring(cursorX, springConfig);
   const springY = useSpring(cursorY, springConfig);
 
   useEffect(() => {
+    // Désactivé sur les appareils tactiles (mobile, tablette)
+    // (pointer: coarse) = écran tactile, (pointer: fine) = souris
+    const isTouch = window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(hover: none)").matches;
+    setIsTouchDevice(isTouch);
+    if (isTouch) return;
+
     // Vérification prefers-reduced-motion
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) return;
@@ -54,6 +61,9 @@ export function CustomCursor() {
       document.removeEventListener("mouseenter", showCursor);
     };
   }, [cursorX, cursorY]);
+
+  // Ne rien rendre sur mobile/tablette
+  if (isTouchDevice) return null;
 
   return (
     <>
