@@ -25,8 +25,11 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
+# local env files — NE JAMAIS COMMITTER .env (clés PayPal, mots de passe !)
+.env
+.env.*
 .env*.local
+!.env.example
 
 # vercel
 .vercel
@@ -34,3 +37,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# SQLite base de données locale
+*.db
+*.db-shm
+*.db-wal
+dev.db
