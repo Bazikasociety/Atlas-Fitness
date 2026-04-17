@@ -7,6 +7,9 @@ import { Footer } from "@/components/layout/footer";
 import { JournalGrid } from "@/components/journal/journal-grid";
 import { formatDate } from "@/lib/utils";
 
+// Rendu dynamique — évite la connexion DB au moment du build
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Le Journal — Atlas Fitness",
   description:

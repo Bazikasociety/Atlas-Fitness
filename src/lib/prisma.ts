@@ -1,10 +1,13 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 
-// Prisma v7 + SQLite : adapter libsql requis pour le client engine (Wasm)
+// Prisma v7 + LibSQL adapter
+// - En local : DATABASE_URL="file:./dev.db"
+// - En production (Turso) : DATABASE_URL="libsql://xxx.turso.io" + TURSO_AUTH_TOKEN="xxx"
 function createPrismaClient() {
   const url = process.env.DATABASE_URL ?? "file:./dev.db";
-  const adapter = new PrismaLibSql({ url });
+  const authToken = process.env.TURSO_AUTH_TOKEN; // undefined en local, requis sur Turso
+  const adapter = new PrismaLibSql({ url, authToken });
   return new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],

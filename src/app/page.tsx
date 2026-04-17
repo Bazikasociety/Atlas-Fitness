@@ -1,3 +1,6 @@
+// Rendu dynamique — la page est générée à chaque requête (données DB fraîches)
+export const dynamic = "force-dynamic";
+
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { HeroSection } from "@/components/sections/hero";

@@ -12,10 +12,8 @@ interface PageProps {
   params: { slug: string };
 }
 
-export async function generateStaticParams() {
-  const articles = await prisma.article.findMany({ select: { slug: true } });
-  return articles.map((a) => ({ slug: a.slug }));
-}
+// Pages rendues dynamiquement côté serveur (pas de pré-génération au build)
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const article = await prisma.article.findUnique({
