@@ -19,9 +19,14 @@ export const metadata: Metadata = {
 export const revalidate = 3600; // ISR — revalide toutes les heures
 
 export default async function JournalPage() {
-  const articles = await prisma.article.findMany({
-    orderBy: { publishedAt: "desc" },
-  });
+  let articles: Awaited<ReturnType<typeof prisma.article.findMany>> = [];
+  try {
+    articles = await prisma.article.findMany({
+      orderBy: { publishedAt: "desc" },
+    });
+  } catch (err) {
+    console.error("[JournalPage] DB error:", err);
+  }
 
   const featured = articles.find((a) => a.featured) ?? articles[0];
   const rest = articles.filter((a) => a.id !== featured?.id);

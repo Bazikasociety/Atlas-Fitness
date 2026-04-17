@@ -26,21 +26,35 @@ const localBusinessSchema = {
 };
 
 export default async function HomePage() {
-  // Récupération des 3 derniers articles pour la preview
-  const articles = await prisma.article.findMany({
-    take: 3,
-    orderBy: { publishedAt: "desc" },
-    select: {
-      id: true,
-      slug: true,
-      title: true,
-      excerpt: true,
-      category: true,
-      coverImage: true,
-      readingTime: true,
-      publishedAt: true,
-    },
-  });
+  // Récupération des 3 derniers articles pour la preview (fallback vide si DB inaccessible)
+  let articles: {
+    id: string;
+    slug: string;
+    title: string;
+    excerpt: string;
+    category: string;
+    coverImage: string | null;
+    readingTime: number;
+    publishedAt: Date;
+  }[] = [];
+  try {
+    articles = await prisma.article.findMany({
+      take: 3,
+      orderBy: { publishedAt: "desc" },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        excerpt: true,
+        category: true,
+        coverImage: true,
+        readingTime: true,
+        publishedAt: true,
+      },
+    });
+  } catch (err) {
+    console.error("[HomePage] DB error:", err);
+  }
 
   return (
     <>

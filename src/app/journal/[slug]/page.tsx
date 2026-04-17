@@ -33,9 +33,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ArticlePage({ params }: PageProps) {
-  const article = await prisma.article.findUnique({
-    where: { slug: params.slug },
-  });
+  let article: Awaited<ReturnType<typeof prisma.article.findUnique>> = null;
+  try {
+    article = await prisma.article.findUnique({
+      where: { slug: params.slug },
+    });
+  } catch (err) {
+    console.error("[ArticlePage] DB error:", err);
+    notFound();
+  }
 
   if (!article) notFound();
 
@@ -51,11 +57,16 @@ export default async function ArticlePage({ params }: PageProps) {
   const htmlContent = await marked(article.content, { async: true });
 
   // Articles suggérés (même catégorie, hors article actuel)
-  const related = await prisma.article.findMany({
-    where: { category: article.category, slug: { not: article.slug } },
-    take: 3,
-    orderBy: { publishedAt: "desc" },
-  });
+  let related: Awaited<ReturnType<typeof prisma.article.findMany>> = [];
+  try {
+    related = await prisma.article.findMany({
+      where: { category: article.category, slug: { not: article.slug } },
+      take: 3,
+      orderBy: { publishedAt: "desc" },
+    });
+  } catch {
+    // silencieux
+  }
 
   return (
     <>
