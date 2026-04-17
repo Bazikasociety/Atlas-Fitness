@@ -3,16 +3,18 @@ import Stripe from "stripe";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-03-25.dahlia",
-});
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 // App Router Next.js 14 : pas de body parsing auto, req.text() fonctionne nativement
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
+  // Initialisation lazy — Stripe non utilisé en prod (PayPal actif)
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return NextResponse.json({ error: "Stripe non configuré" }, { status: 503 });
+  }
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2026-03-25.dahlia" as Parameters<typeof Stripe>[1]["apiVersion"],
+  });
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const body = await req.text();
   const signature = req.headers.get("stripe-signature");
 
