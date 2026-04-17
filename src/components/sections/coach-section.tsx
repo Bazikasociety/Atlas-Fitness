@@ -31,7 +31,7 @@ export function CoachSection() {
             style={{ y: imageY }}
           >
             <Image
-              src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=80"
+              src="/yann-portrait.jpg"
               alt="Yann Bazika — Coach Atlas Fitness dans une salle de sport"
               fill
               className="object-cover object-center transition-all duration-[800ms] ease-in-out
