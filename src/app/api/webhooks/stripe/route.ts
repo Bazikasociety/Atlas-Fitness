@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
         // Email de bienvenue
         if (session.customer_email) {
           await resend.emails.send({
-            from: "Atlas Fitness <noreply@atlasfitness.fr>",
+            from: "Atlas Fitness <noreply@atlasfitness.pro>",
             to: session.customer_email,
             subject: "🎉 Paiement confirmé — Atlas Fitness",
             html: `
