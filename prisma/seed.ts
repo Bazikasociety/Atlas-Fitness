@@ -6,9 +6,12 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 
-// Prisma v7 + SQLite : PrismaLibSql prend un Config {url} directement
-const url = process.env.DATABASE_URL ?? "file:./dev.db";
-const adapter = new PrismaLibSql({ url });
+// Prisma v7 + LibSQL : connexion locale ou Turso selon les env vars
+const rawUrl = process.env.DATABASE_URL ?? "file:./dev.db";
+// Normalise libsql:// → https:// pour compatibilité HTTP (serverless + seed)
+const url = rawUrl.startsWith("libsql://") ? rawUrl.replace("libsql://", "https://") : rawUrl;
+const authToken = process.env.TURSO_AUTH_TOKEN;
+const adapter = new PrismaLibSql({ url, authToken });
 const prisma = new PrismaClient({ adapter });
 
 const ARTICLES = [
