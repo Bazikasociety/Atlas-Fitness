@@ -9,8 +9,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Désactive le body parsing automatique de Next.js — requis pour la vérification Stripe
-export const config = { api: { bodyParser: false } };
+// App Router Next.js 14 : pas de body parsing auto, req.text() fonctionne nativement
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
