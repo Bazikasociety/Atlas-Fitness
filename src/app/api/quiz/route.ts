@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
 
     // Email de notification à Yann (toujours)
     resend.emails.send({
-      from: "Atlas Fitness <noreply@atlasfitness.pro>",
+      from: "Atlas Fitness <onboarding@resend.dev>",
       to: process.env.ADMIN_EMAIL!,
       subject: `🧠 Nouveau quiz — Score ${totalScore}/20 ${email ? `(${email})` : "(anonyme)"}`,
       html: `
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     // Email de résultat au prospect (si email fourni)
     if (email) {
       resend.emails.send({
-        from: "Atlas Fitness <noreply@atlasfitness.pro>",
+        from: "Atlas Fitness <onboarding@resend.dev>",
         to: email,
         subject: `🏋️ Ton bilan fitness — ${totalScore}/20 · Atlas Fitness`,
         html: `

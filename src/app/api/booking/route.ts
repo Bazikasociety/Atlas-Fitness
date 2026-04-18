@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     // Email de confirmation client
     try {
       await resend.emails.send({
-        from: "Atlas Fitness <noreply@atlasfitness.pro>",
+        from: "Atlas Fitness <onboarding@resend.dev>",
         to: email,
         subject:
           type === "subscription"
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     // Email notification coach
     try {
       await resend.emails.send({
-        from: "Atlas Fitness <noreply@atlasfitness.pro>",
+        from: "Atlas Fitness <onboarding@resend.dev>",
         to: process.env.ADMIN_EMAIL!,
         subject: `🔔 Nouvelle réservation — ${name}`,
         html: `
