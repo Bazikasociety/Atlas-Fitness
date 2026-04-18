@@ -8,7 +8,14 @@ interface QuizResponse {
   email: string | null;
   totalScore: number;
   createdAt: string;
-  answers: Record<string, number>;
+  answers: string;
+}
+
+function getLabel(score: number) {
+  if (score >= 17) return { label: "EXCELLENT", color: "#22C55E" };
+  if (score >= 13) return { label: "CORRECT", color: "#EAB308" };
+  if (score >= 8) return { label: "À AMÉLIORER", color: "#F97316" };
+  return { label: "SIGNAL D'ALARME", color: "#EF4444" };
 }
 
 export function QuizStats() {
@@ -16,55 +23,73 @@ export function QuizStats() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // On réutilise les stats globales pour avoir les réponses
-    fetch("/api/admin/stats")
+    fetch("/api/admin/quiz")
       .then((r) => r.json())
-      .then(() => {
-        // Fetch direct des réponses via la route clients (approximation)
-        // En prod on aurait une route dédiée /api/admin/quiz
+      .then((data) => {
+        setResponses(Array.isArray(data) ? data : []);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, []);
 
+  const withEmail = responses.filter((r) => r.email);
+  const avgScore = responses.length
+    ? (responses.reduce((s, r) => s + r.totalScore, 0) / responses.length).toFixed(1)
+    : "—";
+
   return (
-    <div className="space-y-8">
-      <div className="border border-[#1F1F1F] p-8">
-        <p className="font-body uppercase tracking-[0.3em] text-[#22C55E] text-xs mb-4">
-          — ANALYSE QUIZ
-        </p>
-        <p className="font-body text-[#A1A1AA] text-sm leading-relaxed">
-          Les données détaillées du quiz sont disponibles via l'export Excel (bouton en haut à droite).
-          Vous y trouverez tous les scores par catégorie, les leads email et la distribution complète.
-        </p>
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { label: "Score parfait", range: "17–20", color: "#22C55E" },
-            { label: "Correct", range: "13–16", color: "#EAB308" },
-            { label: "À améliorer", range: "8–12", color: "#F97316" },
-            { label: "Signal d'alarme", range: "0–7", color: "#EF4444" },
-          ].map((item) => (
-            <div key={item.label} className="flex items-center gap-3">
-              <div
-                className="w-3 h-3 rounded-full shrink-0"
-                style={{ backgroundColor: item.color }}
-              />
-              <div>
-                <p className="font-body text-xs text-white">{item.label}</p>
-                <p className="font-body text-xs text-[#A1A1AA]">{item.range} / 20</p>
-              </div>
-            </div>
-          ))}
-        </div>
+    <div className="space-y-6">
+      {/* Stats résumé */}
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: "Quiz réalisés", value: responses.length },
+          { label: "Leads email", value: withEmail.length },
+          { label: "Score moyen", value: avgScore + " / 20" },
+        ].map((s) => (
+          <div key={s.label} className="border border-[#1F1F1F] p-6">
+            <p className="font-display text-3xl text-white mb-1">{s.value}</p>
+            <p className="font-body text-xs uppercase tracking-widest text-[#A1A1AA]">{s.label}</p>
+          </div>
+        ))}
       </div>
-      <div className="border border-[#1F1F1F] p-8">
-        <p className="font-body text-xs uppercase tracking-widest text-[#A1A1AA] mb-4">
-          Pour accéder aux données complètes :
-        </p>
-        <ol className="font-body text-sm text-[#FAFAFA] space-y-2 list-decimal list-inside">
-          <li>Cliquez sur <strong className="text-[#22C55E]">EXPORT EXCEL</strong> en haut à droite</li>
-          <li>Ouvrez l'onglet <strong>Prospects Quiz</strong> dans le fichier téléchargé</li>
-          <li>Toutes les réponses avec emails et scores détaillés sont listées</li>
-        </ol>
+
+      {/* Liste des réponses */}
+      <div className="border border-[#1F1F1F]">
+        <div className="p-6 border-b border-[#1F1F1F]">
+          <p className="font-body uppercase tracking-[0.3em] text-[#22C55E] text-xs">
+            — RÉPONSES QUIZ
+          </p>
+        </div>
+
+        {loading ? (
+          <p className="font-body text-[#A1A1AA] text-sm p-6">Chargement...</p>
+        ) : responses.length === 0 ? (
+          <p className="font-body text-[#A1A1AA] text-sm p-6">Aucune réponse pour le moment.</p>
+        ) : (
+          <div className="divide-y divide-[#1F1F1F]">
+            {responses.map((r) => {
+              const { label, color } = getLabel(r.totalScore);
+              return (
+                <div key={r.id} className="p-6 flex items-center justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body text-sm text-white truncate">
+                      {r.email ?? <span className="text-[#A1A1AA] italic">Anonyme</span>}
+                    </p>
+                    <p className="font-body text-xs text-[#A1A1AA] mt-1">
+                      {formatDate(new Date(r.createdAt))}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="font-display text-2xl text-white">
+                      {r.totalScore}<span className="text-sm text-[#A1A1AA]">/20</span>
+                    </p>
+                    <p className="font-body text-xs mt-1" style={{ color }}>{label}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
